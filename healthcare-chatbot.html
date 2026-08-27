@@ -170,6 +170,7 @@
     display:flex;
     flex-direction:column;
     min-width:0;
+    min-height:0;
   }
 
   .chat-header{
@@ -215,6 +216,7 @@
 
   .messages{
     flex:1;
+    min-height:0;
     overflow-y:auto;
     padding: 22px 26px;
     display:flex;
@@ -415,7 +417,7 @@
 
   @media (max-width: 760px){
     body{ padding:0; }
-    .app{ grid-template-columns: 1fr; height:100vh; max-height:100vh; border-radius:0; }
+    .app{ grid-template-columns: 1fr; height:100dvh; max-height:100dvh; border-radius:0; }
     .sidebar{
       flex-direction:row;
       overflow-x:auto;
@@ -464,6 +466,13 @@
         <div>
           <div class="action-title">Nearby Hospitals</div>
           <div class="action-sub">Find care close by</div>
+        </div>
+      </button>
+      <button class="action-card" onclick="showNearbyClinics()">
+        <div class="action-icon icon-hospital">🩹</div>
+        <div>
+          <div class="action-title">Find a Clinic</div>
+          <div class="action-sub">Nearby outpatient care</div>
         </div>
       </button>
       <button class="action-card" onclick="openAppointmentModal()">
@@ -547,6 +556,14 @@
     <p>Fill in your details and we'll confirm your slot.</p>
     <div class="modal-form">
       <div>
+        <label>Clinic</label>
+        <select id="apptClinic">
+          <option>Sunrise Family Clinic</option>
+          <option>Wellness Point Clinic</option>
+          <option>CareFirst Walk-in Clinic</option>
+        </select>
+      </div>
+      <div>
         <label>Full name</label>
         <input type="text" id="apptName" placeholder="e.g. Bhavna Sharma">
       </div>
@@ -600,6 +617,12 @@ const hospitals = [
   { name: "St. Anne's Care Hospital", distance: "3.1 km", eta: "12 min", phone: "108" }
 ];
 
+const clinics = [
+  { name: "Sunrise Family Clinic", distance: "0.8 km", availability: "Today · 3 slots", department: "General Physician" },
+  { name: "Wellness Point Clinic", distance: "1.6 km", availability: "Today · 5 slots", department: "General Physician" },
+  { name: "CareFirst Walk-in Clinic", distance: "2.1 km", availability: "Tomorrow · 8 slots", department: "Pediatrics" }
+];
+
 function scrollBottom(){ messages.scrollTop = messages.scrollHeight; }
 
 function addMessage(text, sender){
@@ -637,12 +660,12 @@ function sendQuick(text){
   sendMessage();
 }
 
-function sendMessage(){
+async function sendMessage(){
   const text = input.value.trim();
   if (!text) return;
   addMessage(escapeHtml(text), 'user');
   input.value = '';
-  showTyping(() => handleBotReply(text.toLowerCase()));
+  showTyping(() => handleBotReply(text.toLowerCase(), text));
 }
 
 function escapeHtml(str){
@@ -651,13 +674,15 @@ function escapeHtml(str){
   return d.innerHTML;
 }
 
-function handleBotReply(text){
+async function handleBotReply(text, originalText = text){
   if (text.includes('ambulance') || text.includes('emergency') || text.includes('sos')){
     addMessage("This sounds urgent — let's get you help right away.", 'bot');
     openAmbulanceModal();
   } else if (text.includes('chest pain') || text.includes('breath')){
     addMessage("Chest pain or trouble breathing can be serious. I'd strongly recommend calling emergency services now rather than waiting.", 'bot');
     setTimeout(openAmbulanceModal, 600);
+  } else if (text.includes('clinic')){
+    showNearbyClinics();
   } else if (text.includes('hospital') || text.includes('nearby')){
     showNearbyHospitals();
   } else if (text.includes('appointment') || text.includes('book')){
@@ -677,8 +702,25 @@ function handleBotReply(text){
   } else if (text.includes('hi') || text.includes('hello') || text.includes('hey')){
     addMessage("Hello! How are you feeling today? I can help with symptoms, hospitals, appointments, or emergencies.", 'bot');
   } else {
-    addMessage("Got it. I can help with symptom guidance, finding nearby hospitals, booking an appointment, or emergency dispatch. What would help most right now?", 'bot');
+    try {
+      const reply = await getGeminiReply(originalText);
+      addMessage(escapeHtml(reply).replace(/\n/g, '<br>'), 'bot');
+    } catch (error) {
+      addMessage("I can help with symptom guidance, finding nearby hospitals, booking an appointment, or emergency dispatch. What would help most right now?", 'bot');
+    }
   }
+}
+
+async function getGeminiReply(text){
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: text })
+  });
+  if (!response.ok) throw new Error('Gemini request failed');
+  const data = await response.json();
+  if (!data.reply) throw new Error('Gemini returned no reply');
+  return data.reply;
 }
 
 function startSymptomCheck(){
@@ -712,8 +754,32 @@ function showNearbyHospitals(){
   }, 600);
 }
 
+function showNearbyClinics(){
+  showTyping(() => {
+    addMessage("Here are nearby clinics with appointments available:", 'bot');
+    const wrap = document.createElement('div');
+    wrap.className = 'msg bot';
+    wrap.style.padding = '10px';
+    wrap.innerHTML = clinics.map(clinic => `
+      <div class="hospital-card">
+        <div class="hospital-info">
+          <b>${clinic.name}</b>
+          <span>${clinic.distance} away · ${clinic.availability}</span>
+        </div>
+        <button class="call-mini" onclick="openAppointmentModal('${clinic.name}')">Book</button>
+      </div>
+    `).join('');
+    messages.appendChild(wrap);
+    scrollBottom();
+  }, 600);
+}
+
 function openAmbulanceModal(){ document.getElementById('ambulanceOverlay').classList.add('active'); }
-function openAppointmentModal(){ document.getElementById('appointmentOverlay').classList.add('active'); }
+function openAppointmentModal(clinicName = ''){
+  const clinicSelect = document.getElementById('apptClinic');
+  if (clinicName) clinicSelect.value = clinicName;
+  document.getElementById('appointmentOverlay').classList.add('active');
+}
 function openReminderModal(){ document.getElementById('reminderOverlay').classList.add('active'); }
 function closeOverlay(id){ document.getElementById(id).classList.remove('active'); }
 
@@ -726,13 +792,14 @@ function confirmAmbulance(){
 }
 
 function confirmAppointment(){
+  const clinic = document.getElementById('apptClinic').value;
   const name = document.getElementById('apptName').value.trim() || "there";
   const dept = document.getElementById('apptDept').value;
   const date = document.getElementById('apptDate').value || "the next available date";
   closeOverlay('appointmentOverlay');
   addSystemNote("📅 Appointment request submitted");
   showTyping(() => {
-    addMessage(`Thanks, ${escapeHtml(name)}! You're booked with <b>${dept}</b> on <b>${date}</b>. You'll get a confirmation shortly.`, 'bot');
+    addMessage(`Thanks, ${escapeHtml(name)}! Your <b>${dept}</b> appointment at <b>${escapeHtml(clinic)}</b> is booked for <b>${date}</b>. You'll get a confirmation shortly.`, 'bot');
   }, 700);
 }
 

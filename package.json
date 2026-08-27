@@ -1,0 +1,9 @@
+{
+  "name": "sana-healthcare-chatbot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sana healthcare chatbot with optional Google Gemini replies",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
