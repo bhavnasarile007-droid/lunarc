@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sana — Your Care Companion</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --bg: #F5FAFD;
+    --baby-blue: #8ED1E8;
+    --baby-blue-soft: #DFF3FA;
+    --deep-blue: #2E8FBD;
+    --navy: #1E3A4C;
+    --muted: #6C8B9B;
+    --white: #FFFFFF;
+    --sos-red: #FF5A5F;
+    --ok-green: #45D0A5;
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+    --shadow: 0 10px 30px rgba(46, 143, 189, 0.12);
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 90% -10%, rgba(142,209,232,0.35), transparent 45%),
+      radial-gradient(circle at -10% 110%, rgba(142,209,232,0.3), transparent 40%),
+      var(--bg);
+    font-family:'Inter', sans-serif;
+    color: var(--navy);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+  }
+
+  .app{
+    width:100%;
+    max-width: 1180px;
+    height: 780px;
+    max-height: 92vh;
+    background: var(--white);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    display:grid;
+    grid-template-columns: 300px 1fr;
+    overflow:hidden;
+    border: 1px solid #EAF5FA;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    background: linear-gradient(180deg, var(--baby-blue-soft) 0%, #EFF9FC 100%);
+    padding: 28px 22px;
+    display:flex;
+    flex-direction:column;
+    gap: 22px;
+    border-right: 1px solid #E3F2F8;
+    overflow-y:auto;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+  }
+  .brand-mark{
+    width: 42px; height:42px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--deep-blue), var(--baby-blue));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 14px rgba(46,143,189,0.35);
+  }
+  .brand-mark svg{ width:22px; height:22px; }
+  .brand h1{
+    font-family:'Sora', sans-serif;
+    font-size: 19px;
+    margin:0;
+    font-weight:700;
+    letter-spacing: -0.01em;
+  }
+  .brand span{
+    display:block;
+    font-size:11.5px;
+    color: var(--muted);
+    font-weight:500;
+    margin-top:1px;
+  }
+
+  .section-label{
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+    font-weight:600;
+    margin: 4px 0 -8px 4px;
+  }
+
+  .quick-actions{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+
+  .action-card{
+    background: var(--white);
+    border: 1px solid #E3F2F8;
+    border-radius: var(--radius-md);
+    padding: 13px 14px;
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    text-align:left;
+    font-family:'Inter', sans-serif;
+  }
+  .action-card:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(46,143,189,0.16);
+    border-color: var(--baby-blue);
+  }
+  .action-card:focus-visible{ outline: 2px solid var(--deep-blue); outline-offset:2px; }
+  .action-icon{
+    width: 36px; height:36px; border-radius: 10px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    font-size: 17px;
+  }
+  .action-title{ font-size: 13.5px; font-weight:600; color: var(--navy); }
+  .action-sub{ font-size: 11.5px; color: var(--muted); margin-top:1px; }
+
+  .icon-ambulance{ background: #FFE7E8; }
+  .icon-hospital{ background: var(--baby-blue-soft); }
+  .icon-appointment{ background: #E6F6EE; }
+  .icon-symptom{ background: #FFF3D9; }
+  .icon-reminder{ background: #EFE7FB; }
+
+  .sos-btn{
+    margin-top: auto;
+    background: linear-gradient(135deg, var(--sos-red), #FF8A8E);
+    color: #fff;
+    border:none;
+    border-radius: var(--radius-md);
+    padding: 15px;
+    font-family:'Sora', sans-serif;
+    font-weight:700;
+    font-size: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 9px;
+    cursor:pointer;
+    box-shadow: 0 8px 20px rgba(255,90,95,0.35);
+    animation: pulse-red 2.2s infinite;
+  }
+  .sos-btn:hover{ filter: brightness(1.05); }
+  @keyframes pulse-red{
+    0%{ box-shadow: 0 0 0 0 rgba(255,90,95,0.45), 0 8px 20px rgba(255,90,95,0.35); }
+    70%{ box-shadow: 0 0 0 12px rgba(255,90,95,0), 0 8px 20px rgba(255,90,95,0.35); }
+    100%{ box-shadow: 0 0 0 0 rgba(255,90,95,0), 0 8px 20px rgba(255,90,95,0.35); }
+  }
+
+  /* ---------- MAIN CHAT ---------- */
+  .main{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+
+  .chat-header{
+    padding: 18px 26px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom: 1px solid #EEF6FA;
+  }
+  .header-left{ display:flex; align-items:center; gap:12px; }
+  .avatar{
+    width: 44px; height:44px; border-radius:50%;
+    background: linear-gradient(135deg, var(--baby-blue), var(--deep-blue));
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:'Sora'; font-weight:700; font-size:16px;
+    position:relative;
+  }
+  .status-dot{
+    width:10px; height:10px; border-radius:50%;
+    background: var(--ok-green);
+    border: 2px solid #fff;
+    position:absolute; right:-1px; bottom:-1px;
+  }
+  .header-name{ font-family:'Sora'; font-weight:700; font-size:15.5px; }
+  .header-status{ font-size:12px; color: var(--ok-green); font-weight:600; }
+
+  .heartbeat-wrap{ width: 140px; height: 34px; opacity:.75; }
+  .heartbeat-line{
+    stroke: var(--deep-blue);
+    stroke-width: 2;
+    fill:none;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: draw-heartbeat 3s linear infinite;
+  }
+  @keyframes draw-heartbeat{
+    0%{ stroke-dashoffset: 300; }
+    60%{ stroke-dashoffset: 0; }
+    100%{ stroke-dashoffset: -20; }
+  }
+
+  .messages{
+    flex:1;
+    overflow-y:auto;
+    padding: 22px 26px;
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
+  }
+
+  .msg{
+    max-width: 72%;
+    padding: 12px 15px;
+    border-radius: var(--radius-md);
+    font-size: 13.8px;
+    line-height:1.5;
+    animation: rise .25s ease;
+  }
+  @keyframes rise{ from{ opacity:0; transform: translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .msg.bot{
+    background: var(--baby-blue-soft);
+    color: var(--navy);
+    align-self:flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user{
+    background: linear-gradient(135deg, var(--deep-blue), #4AA9CE);
+    color:#fff;
+    align-self:flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.system{
+    align-self:center;
+    background: #FFF3D9;
+    color: #8A6A1D;
+    font-size:12px;
+    border-radius: 20px;
+    padding: 7px 14px;
+  }
+
+  .hospital-card{
+    background:#fff;
+    border:1px solid #E3F2F8;
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-top:8px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .hospital-info b{ font-size:13px; display:block; }
+  .hospital-info span{ font-size:11.5px; color:var(--muted); }
+  .call-mini{
+    background: var(--deep-blue);
+    color:#fff;
+    border:none;
+    border-radius: 20px;
+    font-size:11.5px;
+    font-weight:600;
+    padding: 6px 12px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+
+  .typing{
+    align-self:flex-start;
+    display:flex;
+    gap:4px;
+    background: var(--baby-blue-soft);
+    padding: 12px 15px;
+    border-radius: var(--radius-md);
+    border-bottom-left-radius:4px;
+  }
+  .typing span{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--deep-blue);
+    opacity:.5;
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2){ animation-delay:.15s; }
+  .typing span:nth-child(3){ animation-delay:.3s; }
+  @keyframes bounce{ 0%,60%,100%{ transform:translateY(0); opacity:.5;} 30%{ transform:translateY(-4px); opacity:1;} }
+
+  .chips-row{
+    padding: 0 26px 12px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .chip{
+    background:#fff;
+    border: 1px solid var(--baby-blue);
+    color: var(--deep-blue);
+    font-size:12.5px;
+    font-weight:600;
+    padding: 7px 13px;
+    border-radius:20px;
+    cursor:pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .chip:hover{ background: var(--deep-blue); color:#fff; }
+
+  .input-bar{
+    padding: 16px 26px 22px;
+    display:flex;
+    gap:10px;
+    border-top: 1px solid #EEF6FA;
+  }
+  .input-bar input{
+    flex:1;
+    border: 1.5px solid #E3F2F8;
+    background: var(--bg);
+    border-radius: 24px;
+    padding: 13px 18px;
+    font-size:13.8px;
+    font-family:'Inter';
+    color: var(--navy);
+    outline:none;
+    transition: border-color .15s ease;
+  }
+  .input-bar input:focus{ border-color: var(--baby-blue); }
+  .send-btn{
+    width: 46px; height:46px; border-radius:50%;
+    background: linear-gradient(135deg, var(--deep-blue), var(--baby-blue));
+    border:none;
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    box-shadow: 0 6px 14px rgba(46,143,189,0.3);
+  }
+  .send-btn:hover{ filter:brightness(1.06); }
+
+  /* ---------- MODAL ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background: rgba(20,45,58,0.45);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .overlay.active{ display:flex; }
+  .modal{
+    background:#fff;
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    width: 100%;
+    max-width: 380px;
+    text-align:center;
+    animation: rise .2s ease;
+  }
+  .modal h2{ font-family:'Sora'; font-size:18px; margin: 4px 0 6px; }
+  .modal p{ font-size:13px; color:var(--muted); margin: 0 0 18px; line-height:1.5; }
+  .modal-form{ text-align:left; display:flex; flex-direction:column; gap:12px; margin-bottom: 16px; }
+  .modal-form label{ font-size:12px; font-weight:600; color:var(--navy); }
+  .modal-form input, .modal-form select{
+    width:100%; margin-top:5px;
+    border:1.5px solid #E3F2F8; border-radius:10px;
+    padding: 10px 12px; font-family:'Inter'; font-size:13px;
+    background: var(--bg); outline:none;
+  }
+  .modal-form input:focus, .modal-form select:focus{ border-color: var(--baby-blue); }
+
+  .call-big{
+    width: 84px; height:84px; border-radius:50%;
+    background: linear-gradient(135deg, var(--sos-red), #FF8A8E);
+    display:flex; align-items:center; justify-content:center;
+    margin: 6px auto 16px;
+    font-size: 34px;
+    animation: pulse-red 1.6s infinite;
+  }
+  .btn-primary{
+    width:100%;
+    background: var(--deep-blue);
+    color:#fff;
+    border:none;
+    border-radius: 24px;
+    padding: 13px;
+    font-weight:700;
+    font-family:'Sora';
+    font-size:14px;
+    cursor:pointer;
+  }
+  .btn-primary.danger{ background: var(--sos-red); }
+  .btn-ghost{
+    width:100%;
+    background:none;
+    border:none;
+    color: var(--muted);
+    padding: 10px;
+    font-size:12.5px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+
+  ::-webkit-scrollbar{ width:6px; }
+  ::-webkit-scrollbar-thumb{ background: var(--baby-blue); border-radius:10px; }
+
+  @media (max-width: 760px){
+    body{ padding:0; }
+    .app{ grid-template-columns: 1fr; height:100vh; max-height:100vh; border-radius:0; }
+    .sidebar{
+      flex-direction:row;
+      overflow-x:auto;
+      align-items:center;
+      padding: 14px 16px;
+      gap:12px;
+    }
+    .brand span{ display:none; }
+    .quick-actions{ flex-direction:row; }
+    .action-card{ flex-direction:column; text-align:center; min-width:88px; padding:10px 8px; }
+    .action-title{ font-size:11px; }
+    .action-sub{ display:none; }
+    .sos-btn{ margin-top:0; padding: 12px 16px; white-space:nowrap; }
+    .section-label{ display:none; }
+    .heartbeat-wrap{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7.5-4.6-10-9.3C.3 8 2 4.5 5.4 4c2-.3 3.7.6 4.6 2C10.9 7.4 12 8 12 8s1.1-.6 2-2c.9-1.4 2.6-2.3 4.6-2C22 4.5 23.7 8 22 11.7 19.5 16.4 12 21 12 21z" stroke="#fff" stroke-width="1.6"/></svg>
+      </div>
+      <div>
+        <h1>Sana</h1>
+        <span>Your care companion</span>
+      </div>
+    </div>
+
+    <div class="section-label">Quick actions</div>
+    <div class="quick-actions">
+      <button class="action-card" onclick="openAmbulanceModal()">
+        <div class="action-icon icon-ambulance">🚑</div>
+        <div>
+          <div class="action-title">Call Ambulance</div>
+          <div class="action-sub">Emergency dispatch</div>
+        </div>
+      </button>
+      <button class="action-card" onclick="showNearbyHospitals()">
+        <div class="action-icon icon-hospital">🏥</div>
+        <div>
+          <div class="action-title">Nearby Hospitals</div>
+          <div class="action-sub">Find care close by</div>
+        </div>
+      </button>
+      <button class="action-card" onclick="openAppointmentModal()">
+        <div class="action-icon icon-appointment">📅</div>
+        <div>
+          <div class="action-title">Book Appointment</div>
+          <div class="action-sub">See a doctor</div>
+        </div>
+      </button>
+      <button class="action-card" onclick="startSymptomCheck()">
+        <div class="action-icon icon-symptom">🩺</div>
+        <div>
+          <div class="action-title">Symptom Checker</div>
+          <div class="action-sub">Quick guidance</div>
+        </div>
+      </button>
+      <button class="action-card" onclick="openReminderModal()">
+        <div class="action-icon icon-reminder">💊</div>
+        <div>
+          <div class="action-title">Medicine Reminder</div>
+          <div class="action-sub">Never miss a dose</div>
+        </div>
+      </button>
+    </div>
+
+    <button class="sos-btn" onclick="openAmbulanceModal()">
+      🚨 SOS Emergency
+    </button>
+  </aside>
+
+  <!-- MAIN CHAT -->
+  <main class="main">
+    <div class="chat-header">
+      <div class="header-left">
+        <div class="avatar">S<span class="status-dot"></span></div>
+        <div>
+          <div class="header-name">Sana</div>
+          <div class="header-status">● Online, ready to help</div>
+        </div>
+      </div>
+      <svg class="heartbeat-wrap" viewBox="0 0 140 34">
+        <polyline class="heartbeat-line" points="0,17 25,17 32,6 40,28 48,2 56,17 140,17"/>
+      </svg>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="msg bot">Hi, I'm Sana 👋 I can help with hospitals nearby, booking appointments, checking symptoms, or getting you emergency help fast. What do you need today?</div>
+    </div>
+
+    <div class="chips-row" id="chipsRow">
+      <div class="chip" onclick="sendQuick('Find a hospital near me')">Find a hospital</div>
+      <div class="chip" onclick="sendQuick('I need an ambulance')">I need an ambulance</div>
+      <div class="chip" onclick="sendQuick('I have a fever')">I have a fever</div>
+      <div class="chip" onclick="sendQuick('Book an appointment')">Book appointment</div>
+    </div>
+
+    <div class="input-bar">
+      <input type="text" id="userInput" placeholder="Type your message…" onkeydown="if(event.key==='Enter') sendMessage()">
+      <button class="send-btn" onclick="sendMessage()" aria-label="Send message">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M3 11.5L21 3l-8.5 18-2.5-8-7-1.5z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </main>
+</div>
+
+<!-- AMBULANCE MODAL -->
+<div class="overlay" id="ambulanceOverlay">
+  <div class="modal">
+    <div class="call-big">🚑</div>
+    <h2>Confirm Emergency Call</h2>
+    <p>This will connect you to emergency dispatch immediately. Only proceed if this is a genuine medical emergency.</p>
+    <button class="btn-primary danger" onclick="confirmAmbulance()">Call 108 Now</button>
+    <button class="btn-ghost" onclick="closeOverlay('ambulanceOverlay')">Cancel</button>
+  </div>
+</div>
+
+<!-- APPOINTMENT MODAL -->
+<div class="overlay" id="appointmentOverlay">
+  <div class="modal">
+    <h2>Book an Appointment</h2>
+    <p>Fill in your details and we'll confirm your slot.</p>
+    <div class="modal-form">
+      <div>
+        <label>Full name</label>
+        <input type="text" id="apptName" placeholder="e.g. Bhavna Sharma">
+      </div>
+      <div>
+        <label>Department</label>
+        <select id="apptDept">
+          <option>General Physician</option>
+          <option>Cardiology</option>
+          <option>Pediatrics</option>
+          <option>Dermatology</option>
+          <option>Orthopedics</option>
+        </select>
+      </div>
+      <div>
+        <label>Preferred date</label>
+        <input type="date" id="apptDate">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="confirmAppointment()">Confirm Booking</button>
+    <button class="btn-ghost" onclick="closeOverlay('appointmentOverlay')">Cancel</button>
+  </div>
+</div>
+
+<!-- REMINDER MODAL -->
+<div class="overlay" id="reminderOverlay">
+  <div class="modal">
+    <h2>Set a Medicine Reminder</h2>
+    <p>We'll remind Sana's chat to nudge you at this time.</p>
+    <div class="modal-form">
+      <div>
+        <label>Medicine name</label>
+        <input type="text" id="medName" placeholder="e.g. Paracetamol">
+      </div>
+      <div>
+        <label>Time</label>
+        <input type="time" id="medTime">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="confirmReminder()">Save Reminder</button>
+    <button class="btn-ghost" onclick="closeOverlay('reminderOverlay')">Cancel</button>
+  </div>
+</div>
+
+<script>
+const messages = document.getElementById('messages');
+const input = document.getElementById('userInput');
+
+const hospitals = [
+  { name: "Sunrise City Hospital", distance: "1.2 km", eta: "5 min", phone: "108" },
+  { name: "Green Valley Medical Center", distance: "2.4 km", eta: "9 min", phone: "108" },
+  { name: "St. Anne's Care Hospital", distance: "3.1 km", eta: "12 min", phone: "108" }
+];
+
+function scrollBottom(){ messages.scrollTop = messages.scrollHeight; }
+
+function addMessage(text, sender){
+  const div = document.createElement('div');
+  div.className = 'msg ' + sender;
+  div.innerHTML = text;
+  messages.appendChild(div);
+  scrollBottom();
+}
+
+function addSystemNote(text){
+  const div = document.createElement('div');
+  div.className = 'msg system';
+  div.textContent = text;
+  messages.appendChild(div);
+  scrollBottom();
+}
+
+function showTyping(callback, delay=750){
+  const t = document.createElement('div');
+  t.className = 'typing';
+  t.id = 'typingIndicator';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  messages.appendChild(t);
+  scrollBottom();
+  setTimeout(() => {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+    callback();
+  }, delay);
+}
+
+function sendQuick(text){
+  input.value = text;
+  sendMessage();
+}
+
+function sendMessage(){
+  const text = input.value.trim();
+  if (!text) return;
+  addMessage(escapeHtml(text), 'user');
+  input.value = '';
+  showTyping(() => handleBotReply(text.toLowerCase()));
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function handleBotReply(text){
+  if (text.includes('ambulance') || text.includes('emergency') || text.includes('sos')){
+    addMessage("This sounds urgent — let's get you help right away.", 'bot');
+    openAmbulanceModal();
+  } else if (text.includes('chest pain') || text.includes('breath')){
+    addMessage("Chest pain or trouble breathing can be serious. I'd strongly recommend calling emergency services now rather than waiting.", 'bot');
+    setTimeout(openAmbulanceModal, 600);
+  } else if (text.includes('hospital') || text.includes('nearby')){
+    showNearbyHospitals();
+  } else if (text.includes('appointment') || text.includes('book')){
+    addMessage("Sure, let's get you booked in with a doctor.", 'bot');
+    setTimeout(openAppointmentModal, 500);
+  } else if (text.includes('fever')){
+    addMessage("Sorry you're not feeling well. For fever: rest, stay hydrated, and monitor your temperature. If it stays above 39°C for more than a day, or you feel confused or short of breath, please seek medical care. Want me to find a nearby clinic?", 'bot');
+  } else if (text.includes('headache')){
+    addMessage("For a mild headache, rest in a quiet dark room and stay hydrated. If it's sudden, severe, or the worst you've ever had, that needs urgent attention. Should I connect you with a hospital?", 'bot');
+  } else if (text.includes('cough') || text.includes('cold')){
+    addMessage("Warm fluids and rest usually help with a cough or cold. If it lasts over 10 days or you develop a high fever, it's worth seeing a doctor.", 'bot');
+  } else if (text.includes('reminder') || text.includes('medicine') || text.includes('pill')){
+    addMessage("I can set that up for you.", 'bot');
+    setTimeout(openReminderModal, 500);
+  } else if (text.includes('thank')){
+    addMessage("You're always welcome. Take care of yourself 💙", 'bot');
+  } else if (text.includes('hi') || text.includes('hello') || text.includes('hey')){
+    addMessage("Hello! How are you feeling today? I can help with symptoms, hospitals, appointments, or emergencies.", 'bot');
+  } else {
+    addMessage("Got it. I can help with symptom guidance, finding nearby hospitals, booking an appointment, or emergency dispatch. What would help most right now?", 'bot');
+  }
+}
+
+function startSymptomCheck(){
+  addMessage("Let's check your symptoms. What are you experiencing?", 'bot');
+  document.getElementById('chipsRow').innerHTML = `
+    <div class="chip" onclick="sendQuick('I have a fever')">Fever</div>
+    <div class="chip" onclick="sendQuick('I have a headache')">Headache</div>
+    <div class="chip" onclick="sendQuick('I have a cough')">Cough / Cold</div>
+    <div class="chip" onclick="sendQuick('I have chest pain')">Chest pain</div>
+  `;
+}
+
+function showNearbyHospitals(){
+  showTyping(() => {
+    let html = "Here are hospitals closest to you:";
+    addMessage(html, 'bot');
+    const wrap = document.createElement('div');
+    wrap.className = 'msg bot';
+    wrap.style.padding = '10px';
+    wrap.innerHTML = hospitals.map(h => `
+      <div class="hospital-card">
+        <div class="hospital-info">
+          <b>${h.name}</b>
+          <span>${h.distance} away · ETA ${h.eta}</span>
+        </div>
+        <a class="call-mini" href="tel:${h.phone}">Call</a>
+      </div>
+    `).join('');
+    messages.appendChild(wrap);
+    scrollBottom();
+  }, 600);
+}
+
+function openAmbulanceModal(){ document.getElementById('ambulanceOverlay').classList.add('active'); }
+function openAppointmentModal(){ document.getElementById('appointmentOverlay').classList.add('active'); }
+function openReminderModal(){ document.getElementById('reminderOverlay').classList.add('active'); }
+function closeOverlay(id){ document.getElementById(id).classList.remove('active'); }
+
+function confirmAmbulance(){
+  closeOverlay('ambulanceOverlay');
+  addSystemNote("📞 Connecting to emergency dispatch (108)…");
+  showTyping(() => {
+    addMessage("Ambulance requested. Stay on the line, keep the patient calm, and unlock your front door if possible so responders can reach you quickly.", 'bot');
+  }, 900);
+}
+
+function confirmAppointment(){
+  const name = document.getElementById('apptName').value.trim() || "there";
+  const dept = document.getElementById('apptDept').value;
+  const date = document.getElementById('apptDate').value || "the next available date";
+  closeOverlay('appointmentOverlay');
+  addSystemNote("📅 Appointment request submitted");
+  showTyping(() => {
+    addMessage(`Thanks, ${escapeHtml(name)}! You're booked with <b>${dept}</b> on <b>${date}</b>. You'll get a confirmation shortly.`, 'bot');
+  }, 700);
+}
+
+function confirmReminder(){
+  const med = document.getElementById('medName').value.trim() || "your medicine";
+  const time = document.getElementById('medTime').value || "the time you set";
+  closeOverlay('reminderOverlay');
+  addSystemNote("💊 Reminder saved");
+  showTyping(() => {
+    addMessage(`Got it — I'll remind you to take <b>${escapeHtml(med)}</b> at <b>${time}</b> every day.`, 'bot');
+  }, 700);
+}
+
+// close modal on outside click
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+});
+</script>
+
+</body>
+</html>
